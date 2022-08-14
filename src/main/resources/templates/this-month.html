@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Stats page</title>
+</head>
+<body>
+
+<div>
+    <h3>Your events in this month:</h3>
+    <div>
+
+        <tr th:each="event : ${events}">
+            <div>
+                <td th:text="${event.summary} "></td>
+                <td th:text="${event.start} "></td>
+                <td th:text="${event.end} "></td>
+            </div>
+        </tr>
+
+    </div>
+</div>
+</body>
+</html>

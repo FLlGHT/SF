@@ -1,7 +1,9 @@
 package com.flight.sf.service;
 
+import com.flight.sf.common.CategoryDTO;
 import com.flight.sf.common.EventDTO;
 import com.flight.sf.common.Mapper;
+import com.flight.sf.common.TaskDTO;
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
 import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver;
@@ -15,6 +17,7 @@ import com.google.api.client.util.DateTime;
 import com.google.api.client.util.store.FileDataStoreFactory;
 import com.google.api.services.calendar.Calendar;
 import com.google.api.services.calendar.CalendarScopes;
+import com.google.api.services.calendar.model.Event;
 import com.google.api.services.calendar.model.Events;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -24,11 +27,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.security.GeneralSecurityException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 
 @Service
 public class CalendarService {
@@ -72,16 +77,20 @@ public class CalendarService {
         return new AuthorizationCodeInstalledApp(flow, receiver).authorize("user");
     }
 
-    public Calendar getService() throws IOException, GeneralSecurityException {
-        // Build a new authorized API client service.
-        final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
+    public Calendar getService() {
+        try {
+            NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
 
-        return new Calendar.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredentials(HTTP_TRANSPORT))
-                .setApplicationName(APPLICATION_NAME)
-                .build();
+            return new Calendar.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredentials(HTTP_TRANSPORT))
+                    .setApplicationName(APPLICATION_NAME)
+                    .build();
+        } catch (GeneralSecurityException | IOException e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
     }
 
-    public List<EventDTO> getNextEvents(int count) throws GeneralSecurityException, IOException {
+    public List<EventDTO> getNextEvents(int count) throws IOException {
         Calendar service = getService();
         // List the next 10 events from the primary calendar.
         DateTime now = new DateTime(System.currentTimeMillis());
@@ -94,15 +103,42 @@ public class CalendarService {
         return mapper.toEventsDTO(events.getItems());
     }
 
-    public List<EventDTO> getLastMonthEvents() throws GeneralSecurityException, IOException {
+    public List<EventDTO> getLastMonthEvents() throws IOException {
         Calendar service = getService();
-        LocalDate monthBegin = LocalDate.now().withDayOfMonth(1);
-        DateTime now = new DateTime(Date.from(monthBegin.atStartOfDay(ZoneId.systemDefault()).toInstant()));
+        DateTime monthBegin = new DateTime(Date.from(LocalDate.now().withDayOfMonth(1).atStartOfDay(ZoneId.systemDefault()).toInstant()));
         Events events = service.events().list("primary")
-                .setTimeMin(now)
+                .setTimeMin(monthBegin)
                 .setOrderBy("startTime")
                 .setSingleEvents(true)
                 .execute();
         return mapper.toEventsDTO(events.getItems());
+    }
+
+    public List<CategoryDTO> getLastMonthProductivity() throws IOException, ParseException {
+        Calendar service = getService();
+        DateTime monthBegin = new DateTime(Date.from(LocalDate.now().withDayOfMonth(1).atStartOfDay(ZoneId.systemDefault()).toInstant()));
+
+        List<Event> events = service.events().list("primary")
+                .setTimeMin(monthBegin)
+                .setOrderBy("startTime")
+                .setSingleEvents(true)
+                .execute()
+                .getItems();
+
+        Map<String, CategoryDTO> categories = new HashMap<>();
+        for (Event event : events) {
+            String colorId = event.getColorId() == null ? "default" : event.getColorId();
+            categories.computeIfAbsent(colorId, param -> new CategoryDTO()).setName(colorId);
+            CategoryDTO category = categories.get(colorId);
+
+            Map<String, TaskDTO> tasks = category.getTasks();
+            tasks.computeIfAbsent(event.getSummary(), param -> new TaskDTO()).setName(event.getSummary());
+
+            TaskDTO task = tasks.get(event.getSummary());
+            task.setMillis(task.getMillis() + (event.getEnd().getDateTime().getValue() - event.getStart().getDateTime().getValue()));
+        }
+
+        Collection<CategoryDTO> collection = categories.values();
+        return new ArrayList<>(collection);
     }
 }

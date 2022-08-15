@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Productivity</title>
+</head>
+<link rel="stylesheet" type="text/css" media="all" href="/css/index.css" th:href="@{/css/index.css}" />
+<body>
+<div>
+    <h3>Last month productivity:</h3>
+    <div>
+
+        <tr th:each="category : ${categories}">
+            <div>
+                <p id="header" th:text="${category.name} "></p>
+                <p th:text="'Total time:' + ${category.time} "></p>
+                <h4>Tasks:</h4>
+                <tc th:each="task : ${category.tasks}">
+                    <p th:text="${task.value.name} + ' ' + ${task.value.time}"></p>
+                </tc>
+            </div>
+        </tr>
+
+    </div>
+</div>
+</body>
+</html>

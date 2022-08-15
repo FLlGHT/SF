@@ -1,5 +1,6 @@
 package com.flight.sf.controller;
 
+import com.flight.sf.common.CategoryDTO;
 import com.flight.sf.common.EventDTO;
 import com.flight.sf.service.CalendarService;
 import com.google.api.services.calendar.model.Event;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
+import java.text.ParseException;
 import java.util.List;
 
 /**
@@ -39,5 +41,12 @@ public class MainController {
         List<EventDTO> events = calendarService.getLastMonthEvents();
         model.addAttribute("events", events);
         return "this-month";
+    }
+
+    @GetMapping("/productivity")
+    public String lastMonthProductivity(Model model) throws IOException, ParseException {
+        List<CategoryDTO> categories = calendarService.getLastMonthProductivity();
+        model.addAttribute("categories", categories);
+        return "productivity";
     }
 }

@@ -3,7 +3,6 @@ package com.flight.sf.controller;
 import com.flight.sf.common.CategoryDTO;
 import com.flight.sf.common.EventDTO;
 import com.flight.sf.service.CalendarService;
-import com.google.api.services.calendar.model.Event;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -30,21 +29,21 @@ public class MainController {
     }
 
     @GetMapping("/next-events")
-    public String getUpcomingEvents(Model model) throws GeneralSecurityException, IOException {
+    public String getUpcomingEvents(Model model) throws IOException {
         List<EventDTO> events = calendarService.getNextEvents(5);
         model.addAttribute("events", events);
         return "next-events";
     }
 
     @GetMapping("/this-month")
-    public String thisMonthEvents(Model model) throws GeneralSecurityException, IOException {
-        List<EventDTO> events = calendarService.getLastMonthEvents();
+    public String thisMonthEvents(Model model) throws IOException {
+        List<EventDTO> events = calendarService.getLastMonthInfo();
         model.addAttribute("events", events);
         return "this-month";
     }
 
     @GetMapping("/productivity")
-    public String lastMonthProductivity(Model model) throws IOException, ParseException {
+    public String lastMonthProductivity(Model model) throws IOException {
         List<CategoryDTO> categories = calendarService.getLastMonthProductivity();
         model.addAttribute("categories", categories);
         return "productivity";

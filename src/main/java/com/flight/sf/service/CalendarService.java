@@ -1,9 +1,6 @@
 package com.flight.sf.service;
 
-import com.flight.sf.common.CategoryDTO;
-import com.flight.sf.common.EventDTO;
-import com.flight.sf.common.Mapper;
-import com.flight.sf.common.TaskDTO;
+import com.flight.sf.common.*;
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
 import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver;
@@ -27,12 +24,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.security.GeneralSecurityException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @Service
@@ -103,33 +96,20 @@ public class CalendarService {
         return mapper.toEventsDTO(events.getItems());
     }
 
-    public List<EventDTO> getLastMonthEvents() throws IOException {
-        Calendar service = getService();
-        DateTime monthBegin = new DateTime(Date.from(LocalDate.now().withDayOfMonth(1).atStartOfDay(ZoneId.systemDefault()).toInstant()));
-        Events events = service.events().list("primary")
-                .setTimeMin(monthBegin)
-                .setOrderBy("startTime")
-                .setSingleEvents(true)
-                .execute();
-        return mapper.toEventsDTO(events.getItems());
+    public List<EventDTO> getLastMonthInfo() throws IOException {
+        List<Event> events = getMonthEvents();
+        return mapper.toEventsDTO(events);
     }
 
-    public List<CategoryDTO> getLastMonthProductivity() throws IOException, ParseException {
-        Calendar service = getService();
-        DateTime monthBegin = new DateTime(Date.from(LocalDate.now().withDayOfMonth(1).atStartOfDay(ZoneId.systemDefault()).toInstant()));
-
-        List<Event> events = service.events().list("primary")
-                .setTimeMin(monthBegin)
-                .setOrderBy("startTime")
-                .setSingleEvents(true)
-                .execute()
-                .getItems();
+    public List<CategoryDTO> getLastMonthProductivity() throws IOException {
+        List<Event> events = getMonthEvents();
 
         Map<String, CategoryDTO> categories = new HashMap<>();
         for (Event event : events) {
-            String colorId = event.getColorId() == null ? "default" : event.getColorId();
-            categories.computeIfAbsent(colorId, param -> new CategoryDTO()).setName(colorId);
-            CategoryDTO category = categories.get(colorId);
+            String colorId = event.getColorId() == null ? "0" : event.getColorId();
+            String categoryName = CategoryColor.getCategoryNameById(colorId);
+            categories.computeIfAbsent(categoryName, param -> new CategoryDTO()).setName(categoryName);
+            CategoryDTO category = categories.get(categoryName);
 
             Map<String, TaskDTO> tasks = category.getTasks();
             tasks.computeIfAbsent(event.getSummary(), param -> new TaskDTO()).setName(event.getSummary());
@@ -140,5 +120,18 @@ public class CalendarService {
 
         Collection<CategoryDTO> collection = categories.values();
         return new ArrayList<>(collection);
+    }
+
+    private List<Event> getMonthEvents() throws IOException {
+        Calendar service = getService();
+        DateTime monthBegin = new DateTime(Date.from(LocalDate.now().withDayOfMonth(1).atStartOfDay(ZoneId.systemDefault()).toInstant()));
+
+        return service.events().list("primary")
+                .setTimeMin(monthBegin)
+                .setOrderBy("startTime")
+                .setSingleEvents(true)
+                .execute()
+                .getItems();
+
     }
 }

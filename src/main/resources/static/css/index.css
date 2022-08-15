@@ -1,9 +1,20 @@
 p {
-    color: blue;
+    color: #05054c;
+    font-size: 25px;
 }
 
 #header {
     margin: 100px;
     font-size: 50px;
-    color: green;
+    color: #0f94cc;
+}
+
+#central-block {
+    text-align: center;
+}
+
+h3 {
+    color: #4f3a9a;
+    font-size: 50px;
+    text-align: center;
 }

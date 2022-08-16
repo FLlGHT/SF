@@ -83,55 +83,40 @@ public class CalendarService {
         }
     }
 
-    public List<EventDTO> getNextEvents(int count) throws IOException {
-        Calendar service = getService();
-        // List the next 10 events from the primary calendar.
-        DateTime now = new DateTime(System.currentTimeMillis());
-        Events events = service.events().list("primary")
-                .setMaxResults(count)
-                .setTimeMin(now)
-                .setOrderBy("startTime")
-                .setSingleEvents(true)
-                .execute();
-        return mapper.toEventsDTO(events.getItems());
-    }
 
-    public List<EventDTO> getLastMonthInfo() throws IOException {
+    public List<TaskDTO> getMonthTasks() throws IOException {
         List<Event> events = getMonthEvents();
-        return mapper.toEventsDTO(events);
-    }
+        Map<String, TaskDTO> tasks = new HashMap<>();
 
-    public List<CategoryDTO> getLastMonthProductivity() throws IOException {
-        List<Event> events = getMonthEvents();
-
-        Map<String, CategoryDTO> categories = new HashMap<>();
         for (Event event : events) {
-            String colorId = event.getColorId() == null ? "0" : event.getColorId();
-            String categoryName = CategoryColor.getCategoryNameById(colorId);
-            categories.computeIfAbsent(categoryName, param -> new CategoryDTO()).setName(categoryName);
-            CategoryDTO category = categories.get(categoryName);
+            TaskDTO task = tasks.computeIfAbsent(event.getSummary().toLowerCase(), param -> new TaskDTO());
 
-            Map<String, TaskDTO> tasks = category.getTasks();
-            tasks.computeIfAbsent(event.getSummary(), param -> new TaskDTO()).setName(event.getSummary());
-
-            TaskDTO task = tasks.get(event.getSummary());
-            task.setMillis(task.getMillis() + (event.getEnd().getDateTime().getValue() - event.getStart().getDateTime().getValue()));
+            task.setName(event.getSummary());
+            task.addMillis(eventDuration(event));
+            task.setCategory(CategoryColor.getCategoryNameById(event.getColorId()));
         }
 
-        Collection<CategoryDTO> collection = categories.values();
-        return new ArrayList<>(collection);
+        List<TaskDTO> list = new ArrayList<>(tasks.values());
+        list.sort(Comparator.comparing(TaskDTO::getCategory).reversed());
+
+        return list;
     }
 
     private List<Event> getMonthEvents() throws IOException {
         Calendar service = getService();
-        DateTime monthBegin = new DateTime(Date.from(LocalDate.now().withDayOfMonth(1).atStartOfDay(ZoneId.systemDefault()).toInstant()));
+        DateTime monthBegin = new DateTime(
+                Date.from(LocalDate.now().withDayOfMonth(1).atStartOfDay(ZoneId.systemDefault()).toInstant()));
 
         return service.events().list("primary")
-                .setTimeMin(monthBegin)
-                .setOrderBy("startTime")
-                .setSingleEvents(true)
-                .execute()
-                .getItems();
+                      .setTimeMin(monthBegin)
+                      .setOrderBy("startTime")
+                      .setSingleEvents(true)
+                      .execute()
+                      .getItems();
 
+    }
+
+    private long eventDuration(Event event) {
+        return event.getEnd().getDateTime().getValue() - event.getStart().getDateTime().getValue();
     }
 }

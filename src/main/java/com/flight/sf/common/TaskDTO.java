@@ -6,8 +6,9 @@ public class TaskDTO {
 
     private String name;
     private String time;
-
     private long millis;
+
+    private String category;
 
 
     public String getName() {
@@ -39,5 +40,17 @@ public class TaskDTO {
 
     public void setMillis(long millis) {
         this.millis = millis;
+    }
+
+    public void addMillis(long millis) {
+        setMillis(this.millis + millis);
+    }
+
+    public String getCategory() {
+        return category;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
     }
 }

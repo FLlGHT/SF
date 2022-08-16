@@ -42,6 +42,8 @@ public enum CategoryColor {
     }
 
     public static String getCategoryNameById(String id) {
+        if (id == null) return BLUE.getCategoryName();
+
         return Arrays.stream(CategoryColor.values())
                 .filter(categoryColor -> categoryColor.getId().equals(id))
                 .findFirst().orElse(CategoryColor.UNDEFINED).getCategoryName();

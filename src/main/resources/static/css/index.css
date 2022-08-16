@@ -1,7 +1,3 @@
-p {
-    color: #05054c;
-    font-size: 25px;
-}
 
 #header {
     margin: 100px;
@@ -10,11 +6,5 @@ p {
 }
 
 #central-block {
-    text-align: center;
-}
-
-h3 {
-    color: #4f3a9a;
-    font-size: 50px;
     text-align: center;
 }

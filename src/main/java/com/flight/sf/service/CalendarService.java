@@ -1,6 +1,8 @@
 package com.flight.sf.service;
 
-import com.flight.sf.common.*;
+import com.flight.sf.common.CategoryColor;
+import com.flight.sf.common.StatsDTO;
+import com.flight.sf.common.TaskDTO;
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
 import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver;
@@ -15,8 +17,6 @@ import com.google.api.client.util.store.FileDataStoreFactory;
 import com.google.api.services.calendar.Calendar;
 import com.google.api.services.calendar.CalendarScopes;
 import com.google.api.services.calendar.model.Event;
-import com.google.api.services.calendar.model.Events;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.FileNotFoundException;
@@ -25,14 +25,14 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.security.GeneralSecurityException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.Period;
 import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 @Service
 public class CalendarService {
-
-    @Autowired
-    private Mapper mapper;
 
     private static final String APPLICATION_NAME = "Google Calendar API Java Quickstart";
 
@@ -108,15 +108,24 @@ public class CalendarService {
                 Date.from(LocalDate.now().withDayOfMonth(1).atStartOfDay(ZoneId.systemDefault()).toInstant()));
 
         return service.events().list("primary")
-                      .setTimeMin(monthBegin)
-                      .setOrderBy("startTime")
-                      .setSingleEvents(true)
-                      .execute()
-                      .getItems();
+                .setTimeMin(monthBegin)
+                .setOrderBy("startTime")
+                .setSingleEvents(true)
+                .execute()
+                .getItems();
 
     }
 
     private long eventDuration(Event event) {
         return event.getEnd().getDateTime().getValue() - event.getStart().getDateTime().getValue();
+    }
+
+    public StatsDTO getStats(List<TaskDTO> tasks) {
+        long productiveTime = tasks.stream().map(TaskDTO::getMillis).reduce(0L, Long::sum);
+        long totalTime = ChronoUnit.MILLIS.between(LocalDateTime.now().withDayOfMonth(1).withHour(0).withMinute(0),
+                LocalDateTime.now());
+        double percentage = 1.00 * productiveTime / totalTime;
+
+        return new StatsDTO(productiveTime, totalTime, percentage);
     }
 }

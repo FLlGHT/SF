@@ -1,7 +1,6 @@
 package com.flight.sf.common;
 
 import java.util.Arrays;
-import java.util.Objects;
 
 /**
  * @author FLIGHT

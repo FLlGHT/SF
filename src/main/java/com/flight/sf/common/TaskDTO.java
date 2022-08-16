@@ -1,5 +1,7 @@
 package com.flight.sf.common;
 
+import com.flight.sf.utilities.DateUtils;
+
 import java.util.concurrent.TimeUnit;
 
 public class TaskDTO {
@@ -20,14 +22,7 @@ public class TaskDTO {
     }
 
     public String getTime() {
-        long interval = millis;
-
-        long hours = TimeUnit.MILLISECONDS.toHours(interval);
-        interval -= TimeUnit.HOURS.toMillis(hours);
-        long minutes = TimeUnit.MILLISECONDS.toMinutes(interval);
-
-        String stringInterval = "%02d:%02d";
-        return String.format(stringInterval, hours, minutes);
+        return DateUtils.millisToDate(millis);
     }
 
     public void setTime(String time) {

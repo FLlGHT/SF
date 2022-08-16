@@ -29,41 +29,54 @@
         </div>
     </header>
 
-    <main class="px-3">
-        <div class="card mx-auto">
-            <div class="card-header text-black h4 text-center">Month productivity</div>
-            <div class="card-body">
-                <table id="table" class="table align-middle bg-white">
-                    <thead class="bg-light">
-                    <tr>
-                        <th>Task</th>
-                        <th>Category</th>
-                        <th>Time</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr th:each="task : ${tasks}">
-                        <td>
-                            <div class="d-flex align-items-center">
-                                <div class="ms-3">
-                                    <p class="fw-bold mb-1" th:text="${task.name}"></p>
-                                </div>
-                            </div>
-                        </td>
-                        <td>
-                            <p class="fw-normal mb-1" th:text="${task.category}"></p>
-                        </td>
-                        <td>
-                            <p class="fw-normal mb-1" th:text="${task.time}"></p>
-                        </td>
-                    </tr>
-                    </tbody>
+    <div class="d-flex align-items-start mb-2">
+        <div class="сol">
+            <main class="px-3">
+                <div class="card mx-auto">
+                    <div class="card-header text-black h4 text-center">Month productivity</div>
+                    <div class="card-body">
+                        <table id="table" class="table align-middle bg-white">
+                            <thead class="bg-light">
+                            <tr>
+                                <th>Task</th>
+                                <th>Category</th>
+                                <th>Time</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="task : ${tasks}">
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="ms-3">
+                                            <p class="fw-bold mb-1" th:text="${task.name}"></p>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <p class="fw-normal mb-1" th:text="${task.category}"></p>
+                                </td>
+                                <td>
+                                    <p class="fw-normal mb-1" th:text="${task.time}"></p>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
 
-                </table>
+            </main>
+        </div>
+        <div class="col">
+            <div class="card mx-auto">
+                <div class="card-header text-black h4 text-center"> Month stats</div>
+                <div class="card-body">
+                    <p class="text-black" th:text="'Productive time: ' + ${stats.productiveTime}"></p>
+                    <p class="text-black" th:text="'Total time: ' + ${stats.totalTime}"></p>
+                    <p class="text-black" th:text="'Percentage: '+ ${stats.percentage} + '%'"></p>
+                </div>
             </div>
         </div>
-
-    </main>
+    </div>
 
     <footer class="mt-auto text-white-50">
         <p>Created by Michael <a href="https://www.t.me/FLlGHT" class="text-white">"flight"</a> Fedorenko</p>

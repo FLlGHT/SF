@@ -29,10 +29,10 @@ public class MainController {
         return "main-page";
     }
 
-    @GetMapping("productivity-table")
+    @GetMapping("/productivity-table")
     public String lastMonthProductivityTable(Model model) throws IOException {
         List<TaskDTO> tasks = calendarService.getMonthTasks();
         model.addAttribute("tasks", tasks);
-        return "productivity-table";
+        return "productivity";
     }
 }

@@ -26,7 +26,6 @@ import java.io.InputStreamReader;
 import java.security.GeneralSecurityException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.Period;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
@@ -113,7 +112,6 @@ public class CalendarService {
                 .setSingleEvents(true)
                 .execute()
                 .getItems();
-
     }
 
     private long eventDuration(Event event) {
@@ -124,7 +122,7 @@ public class CalendarService {
         long productiveTime = tasks.stream().map(TaskDTO::getMillis).reduce(0L, Long::sum);
         long totalTime = ChronoUnit.MILLIS.between(LocalDateTime.now().withDayOfMonth(1).withHour(0).withMinute(0),
                 LocalDateTime.now());
-        double percentage = 1.00 * productiveTime / totalTime;
+        double percentage = productiveTime / (totalTime * 0.66);
 
         return new StatsDTO(productiveTime, totalTime, percentage);
     }

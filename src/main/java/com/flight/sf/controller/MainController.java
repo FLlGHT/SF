@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.io.IOException;
 import java.util.List;
@@ -27,7 +28,8 @@ public class MainController {
     }
 
     @GetMapping("/productivity-table")
-    public String lastMonthProductivityTable(Model model) throws IOException {
+    public String productivityTable(@RequestParam(value = "begin-date", required = false) String date,
+                                    Model model) throws IOException {
         List<TaskDTO> tasks = calendarService.getMonthTasks();
         StatsDTO stats = calendarService.getStats(tasks);
         model.addAttribute("tasks", tasks);

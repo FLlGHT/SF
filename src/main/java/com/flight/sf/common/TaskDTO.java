@@ -2,16 +2,16 @@ package com.flight.sf.common;
 
 import com.flight.sf.utilities.DateUtils;
 
-import java.util.concurrent.TimeUnit;
+import java.util.HashMap;
+import java.util.Map;
 
 public class TaskDTO {
 
     private String name;
-    private String time;
     private long millis;
 
+    private Map<String, Long> weekMillis = new HashMap<>();
     private String category;
-
 
     public String getName() {
         return name;
@@ -26,7 +26,6 @@ public class TaskDTO {
     }
 
     public void setTime(String time) {
-        this.time = time;
     }
 
     public long getMillis() {
@@ -39,6 +38,14 @@ public class TaskDTO {
 
     public void addMillis(long millis) {
         setMillis(this.millis + millis);
+    }
+
+    public Map<String, Long> getWeekMillis() {
+        return weekMillis;
+    }
+
+    public void setWeekMillis(Map<String, Long> weekMillis) {
+        this.weekMillis = weekMillis;
     }
 
     public String getCategory() {

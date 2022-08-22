@@ -28,12 +28,10 @@ public class MainController {
     }
 
     @GetMapping("/productivity-table")
-    public String productivityTable(@RequestParam(value = "begin-date", required = false) String date,
-                                    Model model) throws IOException {
-        List<TaskDTO> tasks = calendarService.getMonthTasks();
-        StatsDTO stats = calendarService.getStats(tasks);
-        model.addAttribute("tasks", tasks);
-        model.addAttribute("stats", stats);
+    public String productivityTable(Model model) throws IOException {
+        calendarService.getMonthTasks(model);
+//        StatsDTO stats = calendarService.getTotalStats(tasks);
+
         return "productivity";
     }
 }

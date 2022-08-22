@@ -3,6 +3,7 @@ package com.flight.sf.service;
 import com.flight.sf.common.CategoryColor;
 import com.flight.sf.common.StatsDTO;
 import com.flight.sf.common.TaskDTO;
+import com.flight.sf.utilities.DateUtils;
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
 import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver;
@@ -18,6 +19,7 @@ import com.google.api.services.calendar.Calendar;
 import com.google.api.services.calendar.CalendarScopes;
 import com.google.api.services.calendar.model.Event;
 import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -83,22 +85,44 @@ public class CalendarService {
     }
 
 
-    public List<TaskDTO> getMonthTasks() throws IOException {
+    public void getMonthTasks(Model model) throws IOException {
         List<Event> events = getMonthEvents();
         Map<String, TaskDTO> tasks = new HashMap<>();
+        StatsDTO stats = new StatsDTO();
+
+        long totalTime = ChronoUnit.MILLIS.between(LocalDateTime.now().withDayOfMonth(1).withHour(0).withMinute(0), LocalDateTime.now());
+        long totalProductiveTime = 0;
+        int weeksNumber = 0;
 
         for (Event event : events) {
             TaskDTO task = tasks.computeIfAbsent(event.getSummary().toLowerCase(), param -> new TaskDTO());
+            long eventDuration = eventDuration(event);
+            int weekNumber = DateUtils.weekNumber(event.getEnd().getDateTime().getValue());
+            weeksNumber = Math.max(weekNumber, weeksNumber);
+
+            Map<Integer, Long> taskTimeByWeek = task.getMillisByWeek();
+            taskTimeByWeek.put(weekNumber, taskTimeByWeek.get(weekNumber) + eventDuration);
+
+            Map<Integer, Long> totalTimeByWeek = stats.getProductiveTimeByWeek();
+            totalTimeByWeek.put(weekNumber, totalTimeByWeek.get(weekNumber) + eventDuration);
+            totalProductiveTime += eventDuration;
 
             task.setName(event.getSummary());
-            task.addMillis(eventDuration(event));
+            task.addMillis(eventDuration);
             task.setCategory(CategoryColor.getCategoryNameById(event.getColorId()));
         }
 
-        List<TaskDTO> list = new ArrayList<>(tasks.values());
-        list.sort(Comparator.comparing(TaskDTO::getCategory).reversed());
+        stats.setTotalProductiveTime(DateUtils.millisToDate(totalProductiveTime));
+        stats.setTotalTime(DateUtils.millisToDate(totalTime));
+        stats.setTotalPercentage(String.format("%,.2f", totalProductiveTime / (totalTime * 0.66) * 100));
+        stats.setWeeksNumber(weeksNumber);
 
-        return list;
+        addAttributes(model, new ArrayList<>(tasks.values()), stats);
+    }
+
+    private void addAttributes(Model model, List<TaskDTO> tasks, StatsDTO stats) {
+        model.addAttribute("tasks", tasks);
+        model.addAttribute("stats", stats);
     }
 
     private List<Event> getMonthEvents() throws IOException {
@@ -118,12 +142,13 @@ public class CalendarService {
         return event.getEnd().getDateTime().getValue() - event.getStart().getDateTime().getValue();
     }
 
-    public StatsDTO getStats(List<TaskDTO> tasks) {
+    public StatsDTO getTotalStats(List<TaskDTO> tasks) {
         long productiveTime = tasks.stream().map(TaskDTO::getMillis).reduce(0L, Long::sum);
-        long totalTime = ChronoUnit.MILLIS.between(LocalDateTime.now().withDayOfMonth(1).withHour(0).withMinute(0),
-                LocalDateTime.now());
+        long totalTime = ChronoUnit.MILLIS.between(LocalDateTime.now().withDayOfMonth(1).withHour(0).withMinute(0), LocalDateTime.now());
         double percentage = productiveTime / (totalTime * 0.66);
+        int weeksNumber = tasks.stream().map(task -> task.getMillisByWeek().keySet().stream().max(Comparator.naturalOrder()).orElse(4))
+                               .max(Comparator.naturalOrder()).orElse(4);
 
-        return new StatsDTO(productiveTime, totalTime, percentage);
+        return new StatsDTO(productiveTime, totalTime, percentage, weeksNumber);
     }
 }

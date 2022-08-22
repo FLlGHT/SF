@@ -15,9 +15,10 @@
             integrity="sha384-A3rJD856KowSb7dwlZdYEkO39Gagi7vIsF0jrRAoQmDKKtQBHUuLZ9AsSv4jD4Xa"
             crossorigin="anonymous"></script>
 </head>
-<body class="d-flex h-100 text-center text-bg-dark">
+<body class="d-flex h-100 text-center justify-content-center text-bg-dark">
 
-<div class="cover-container d-flex w-100 h-100 p-3 mx-auto flex-column">
+
+<div class="cover-container d-flex w-100 h-100 p-5 justify-content-center flex-column">
     <header class="mb-auto">
         <div>
             <h3 class="float-md-start mb-0"><a class="text-decoration-none" href="/">Stay Focused</a></h3>
@@ -30,12 +31,7 @@
         </div>
     </header>
 
-    <form id="date-picker-form" th:action="@{/productivity-table/}">
-        <input class="card mx-auto mb-2" type="date" th:name="begin-date"/>
-        <input class="card mx-auto mb-2" value="show" type="submit"/>
-    </form>
-
-    <div class="d-flex align-items-start mb-2">
+    <div class="d-flex justify-content-center align-items-start">
         <div class="сol">
             <main class="px-3">
                 <div class="card mx-auto">
@@ -43,32 +39,89 @@
                     <div class="card-body">
                         <table id="table" class="table align-middle bg-white">
                             <thead class="bg-light">
-                            <tr>
+                            <tr class="text-nowrap">
                                 <th>Task</th>
                                 <th>Category</th>
-                                <th>Time</th>
+                                <th th:each="i : ${#numbers.sequence(1, stats.getWeeksNumber())}"
+                                    th:text="'Week ' + ${i}"></th>
+                                <th>Total</th>
                             </tr>
                             </thead>
                             <tbody>
                             <tr th:each="task : ${tasks}">
                                 <td>
-                                    <div class="d-flex align-items-center">
-                                        <div class="ms-3">
-                                            <p class="fw-bold mb-1" th:text="${task.name}"></p>
+                                    <div class="d-flex justify-content-start text-md-start">
+                                        <div class="col-sm-12">
+                                            <p class="fw-bold mb-1 text-nowrap" th:text="${task.name}"></p>
                                         </div>
                                     </div>
                                 </td>
                                 <td>
-                                    <p class="fw-normal mb-1" th:text="${task.category}"></p>
+                                    <p class="fw-normal mb-1 text-nowrap" th:text="${task.category}"></p>
+                                </td>
+                                <td th:each="i : ${#numbers.sequence(0, stats.getWeeksNumber() - 1)}">
+                                    <p class="fw-normal" th:text="${task.timeByWeek[i]}"></p>
                                 </td>
                                 <td>
-                                    <p class="fw-normal mb-1" th:text="${task.time}"></p>
+                                    <p class="fw-normal" th:text="${task.totalTime}"></p>
                                 </td>
                             </tr>
+
                             </tbody>
                         </table>
                     </div>
                 </div>
+
+
+                <div class="card mx-auto">
+                    <div class="card-body">
+                        <table class="table align-middle bg-white">
+                            <thead class="bg-light">
+                            <tr class="text-nowrap">
+                                <th>Task</th>
+                                <th></th>
+                                <th th:each="i : ${#numbers.sequence(1, stats.getWeeksNumber())}"
+                                    th:text="'Week ' + ${i}"></th>
+                                <th>Total</th>
+                            </tr>
+                            </thead>
+
+                            <tbody>
+                            <tr>
+                                <td class="col-sm-12">
+                                    <p class="text-nowrap fw-bold ">Total time: </p>
+                                </td>
+                                <td>
+
+                                </td>
+                                <td th:each="i : ${#numbers.sequence(0, stats.getWeeksNumber() - 1)}">
+                                    <p class="fw-normal" th:text="${stats.timeByWeek[i]}"></p>
+                                </td>
+                                <td>
+                                    <p class="fw-normal" th:text="${stats.totalProductiveTime}"></p>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td>
+                                    <p class="text-nowrap fw-bold">Percentage: </p>
+                                </td>
+                                <td>
+
+                                </td>
+                                <td th:each="i : ${#numbers.sequence(0, stats.getWeeksNumber() - 1)}">
+                                    <p class="fw-normal text-nowrap" th:text="${stats.percentageByWeek[i]} + '%'"></p>
+                                </td>
+                                <td>
+                                    <p class="fw-normal text-nowrap" th:text="${stats.totalPercentage} + ' %'"></p>
+                                </td>
+                            </tr>
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
 
             </main>
         </div>
@@ -76,9 +129,9 @@
             <div class="card mx-auto">
                 <div class="card-header text-black h4 text-center"> Month stats</div>
                 <div class="card-body">
-                    <p class="text-black" th:text="'Productive time: ' + ${stats.productiveTime}"></p>
+                    <p class="text-black" th:text="'Productive time: ' + ${stats.totalProductiveTime}"></p>
                     <p class="text-black" th:text="'Total time: ' + ${stats.totalTime}"></p>
-                    <p class="text-black" th:text="'Productivity percentage: '+ ${stats.percentage} + '%'"></p>
+                    <p class="text-black" th:text="'Productivity percentage: '+ ${stats.totalPercentage} + '%'"></p>
                 </div>
             </div>
         </div>

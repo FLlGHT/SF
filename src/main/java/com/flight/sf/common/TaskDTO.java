@@ -2,16 +2,28 @@ package com.flight.sf.common;
 
 import com.flight.sf.utilities.DateUtils;
 
-import java.util.HashMap;
+import java.time.*;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
-public class TaskDTO {
+public class TaskDTO extends ProductivityDTO {
 
     private String name;
     private long millis;
+    private Map<Integer, Long> millisByWeek;
 
-    private Map<String, Long> weekMillis = new HashMap<>();
     private String category;
+
+    public TaskDTO() {
+        initWeeksMap();
+    }
+
+    private void initWeeksMap() {
+        this.millisByWeek = new LinkedHashMap<>();
+        initMap(millisByWeek);
+    }
 
     public String getName() {
         return name;
@@ -21,8 +33,12 @@ public class TaskDTO {
         this.name = name;
     }
 
-    public String getTime() {
+    public String getTotalTime() {
         return DateUtils.millisToDate(millis);
+    }
+
+    public List<String> getTimeByWeek() {
+        return millisByWeek.values().stream().map(DateUtils::millisToDate).collect(Collectors.toList());
     }
 
     public void setTime(String time) {
@@ -40,12 +56,12 @@ public class TaskDTO {
         setMillis(this.millis + millis);
     }
 
-    public Map<String, Long> getWeekMillis() {
-        return weekMillis;
+    public Map<Integer, Long> getMillisByWeek() {
+        return millisByWeek;
     }
 
-    public void setWeekMillis(Map<String, Long> weekMillis) {
-        this.weekMillis = weekMillis;
+    public void setMillisByWeek(Map<Integer, Long> millisByWeek) {
+        this.millisByWeek = millisByWeek;
     }
 
     public String getCategory() {

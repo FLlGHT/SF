@@ -85,7 +85,7 @@ public class CalendarService {
     }
 
 
-    public void getMonthTasks(Model model) throws IOException {
+    public void getProductivityByWeek(Model model) throws IOException {
         List<Event> events = getMonthEvents();
         Map<String, TaskDTO> tasks = new HashMap<>();
         StatsDTO stats = new StatsDTO();

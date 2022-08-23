@@ -23,3 +23,8 @@ function sortTable(column) {
 
     rows.forEach(row => table.appendChild(row));
 }
+
+$('.input-group.date').datepicker({
+    autoclose: true,
+    todayHighlight: true
+});

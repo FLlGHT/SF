@@ -1,6 +1,7 @@
 package com.flight.sf.service;
 
 import com.flight.sf.common.CategoryColor;
+import com.flight.sf.common.MonthsDTO;
 import com.flight.sf.common.StatsDTO;
 import com.flight.sf.common.TaskDTO;
 import com.flight.sf.utilities.DateUtils;
@@ -85,53 +86,16 @@ public class CalendarService {
     }
 
 
-    public void getProductivityByWeek(Model model) throws IOException {
-        List<Event> events = getMonthEvents();
-        Map<String, TaskDTO> tasks = new HashMap<>();
-        StatsDTO stats = new StatsDTO();
 
-        long totalTime = ChronoUnit.MILLIS.between(LocalDateTime.now().withDayOfMonth(1).withHour(0).withMinute(0), LocalDateTime.now());
-        long totalProductiveTime = 0;
-        int weeksNumber = 0;
-
-        for (Event event : events) {
-            TaskDTO task = tasks.computeIfAbsent(event.getSummary().toLowerCase(), param -> new TaskDTO());
-            long eventDuration = eventDuration(event);
-            int weekNumber = DateUtils.weekNumber(event.getEnd().getDateTime().getValue());
-            weeksNumber = Math.max(weekNumber, weeksNumber);
-
-            Map<Integer, Long> taskTimeByWeek = task.getMillisByWeek();
-            taskTimeByWeek.put(weekNumber, taskTimeByWeek.get(weekNumber) + eventDuration);
-
-            Map<Integer, Long> totalTimeByWeek = stats.getProductiveTimeByWeek();
-            totalTimeByWeek.put(weekNumber, totalTimeByWeek.get(weekNumber) + eventDuration);
-            totalProductiveTime += eventDuration;
-
-            task.setName(event.getSummary());
-            task.addMillis(eventDuration);
-            task.setCategory(CategoryColor.getCategoryNameById(event.getColorId()));
-        }
-
-        stats.setTotalProductiveTime(DateUtils.millisToDate(totalProductiveTime));
-        stats.setTotalTime(DateUtils.millisToDate(totalTime));
-        stats.setTotalPercentage(String.format("%,.2f", totalProductiveTime / (totalTime * 0.66) * 100));
-        stats.setWeeksNumber(weeksNumber);
-
-        addAttributes(model, new ArrayList<>(tasks.values()), stats);
-    }
-
-    private void addAttributes(Model model, List<TaskDTO> tasks, StatsDTO stats) {
-        model.addAttribute("tasks", tasks);
-        model.addAttribute("stats", stats);
-    }
-
-    private List<Event> getMonthEvents() throws IOException {
+    public List<Event> getMonthEvents(LocalDate from, LocalDate to) throws IOException {
         Calendar service = getService();
-        DateTime monthBegin = new DateTime(
-                Date.from(LocalDate.now().withDayOfMonth(1).atStartOfDay(ZoneId.systemDefault()).toInstant()));
+
+        DateTime dateFrom = new DateTime(Date.from(from.atStartOfDay(ZoneId.systemDefault()).toInstant()));
+        DateTime dateTo = new DateTime(Date.from(to.atStartOfDay(ZoneId.systemDefault()).toInstant()));
 
         return service.events().list("primary")
-                .setTimeMin(monthBegin)
+                .setTimeMin(dateFrom)
+                .setTimeMax(dateTo)
                 .setOrderBy("startTime")
                 .setSingleEvents(true)
                 .execute()
@@ -140,15 +104,5 @@ public class CalendarService {
 
     private long eventDuration(Event event) {
         return event.getEnd().getDateTime().getValue() - event.getStart().getDateTime().getValue();
-    }
-
-    public StatsDTO getTotalStats(List<TaskDTO> tasks) {
-        long productiveTime = tasks.stream().map(TaskDTO::getMillis).reduce(0L, Long::sum);
-        long totalTime = ChronoUnit.MILLIS.between(LocalDateTime.now().withDayOfMonth(1).withHour(0).withMinute(0), LocalDateTime.now());
-        double percentage = productiveTime / (totalTime * 0.66);
-        int weeksNumber = tasks.stream().map(task -> task.getMillisByWeek().keySet().stream().max(Comparator.naturalOrder()).orElse(4))
-                               .max(Comparator.naturalOrder()).orElse(4);
-
-        return new StatsDTO(productiveTime, totalTime, percentage, weeksNumber);
     }
 }

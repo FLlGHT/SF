@@ -33,6 +33,13 @@ public class DateUtils {
         return localDate.get(WeekFields.of(Locale.getDefault()).weekOfMonth());
     }
 
+    public static int monthNumber(long millis) {
+        Instant instant = Instant.ofEpochMilli(millis);
+        LocalDate localDate = LocalDate.ofInstant(instant, ZoneId.systemDefault());
+
+        return localDate.getMonthValue();
+    }
+
 
     public static long weekLength(int weekNumber) {
         Calendar calendar = Calendar.getInstance();

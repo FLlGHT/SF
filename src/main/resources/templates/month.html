@@ -4,13 +4,11 @@
     <meta charset="UTF-8">
     <title>Monthly</title>
 
-    <link rel="stylesheet" href="/css/productivity.css">
+    <link rel="stylesheet" href="/webjars/bootstrap/5.2.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="/css/style.css">
-    <link rel="stylesheet" th:href="@{webjars/bootstrap/css/bootstrap.min.css}">
 
-    <script th:src="@{/webjars/jquery/jquery.min.js}"></script>
-    <script th:src="@{/webjars/bootstrap/js/bootstrap.min.js}"></script>
-
+    <script src="webjars/jquery/3.6.0/jquery.min.js"></script>
+    <script src="webjars/bootstrap/5.2.0/js/bootstrap.min.js"></script>
 </head>
 <body class="text-bg-dark">
 
@@ -36,9 +34,6 @@
                     <label for="from">Date from</label>
                     <div class="input-group date">
                         <input type="date" class="form-control" id="from" autocomplete="off" th:name="from"/>
-                        <div class="input-group-append">
-                            <span class="input-group-text"><i class="far fa-calendar-alt"></i></span>
-                        </div>
                     </div>
                 </div>
 
@@ -46,9 +41,6 @@
                     <label for="to">Date to</label>
                     <div class="input-group date">
                         <input type="date" class="form-control" id="to" autocomplete="off" th:name="to"/>
-                        <div class="input-group-append">
-                            <span class="input-group-text"><i class="far fa-calendar-alt"></i></span>
-                        </div>
                     </div>
                 </div>
 
@@ -93,7 +85,6 @@
     </div>
 </footer>
 
-<script th:src="@{/webjars/jquery/jquery.min.js}"></script>
 <script src="/scripts/productivity.js"></script>
 
 </body>

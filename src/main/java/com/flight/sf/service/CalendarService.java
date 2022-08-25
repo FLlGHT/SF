@@ -1,10 +1,5 @@
 package com.flight.sf.service;
 
-import com.flight.sf.common.CategoryColor;
-import com.flight.sf.common.MonthsDTO;
-import com.flight.sf.common.StatsDTO;
-import com.flight.sf.common.TaskDTO;
-import com.flight.sf.utilities.DateUtils;
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
 import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver;
@@ -20,7 +15,6 @@ import com.google.api.services.calendar.Calendar;
 import com.google.api.services.calendar.CalendarScopes;
 import com.google.api.services.calendar.model.Event;
 import org.springframework.stereotype.Service;
-import org.springframework.ui.Model;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -28,9 +22,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.security.GeneralSecurityException;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 @Service
@@ -85,9 +77,7 @@ public class CalendarService {
         }
     }
 
-
-
-    public List<Event> getMonthEvents(LocalDate from, LocalDate to) throws IOException {
+    public List<Event> getEvents(LocalDate from, LocalDate to) throws IOException {
         Calendar service = getService();
 
         DateTime dateFrom = new DateTime(Date.from(from.atStartOfDay(ZoneId.systemDefault()).toInstant()));

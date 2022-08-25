@@ -4,27 +4,26 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
-public class MonthsDTO {
+public class PeriodDTO {
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate from;
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate to;
     private int count;
     private List<TaskDTO> tasks;
-    private List<StatsDTO> stats;
+    private SummaryDTO summary;
+    private ChronoUnit chronoUnit;
 
-    public MonthsDTO() {
+    public PeriodDTO() {
     }
 
-    public MonthsDTO(LocalDate from, LocalDate to) {
+    public PeriodDTO(ChronoUnit chronoUnit, LocalDate from, LocalDate to) {
+        this.chronoUnit = chronoUnit;
         this.from = from;
         this.to = to;
-        this.count = (int) ChronoUnit.MONTHS.between(from, to) + 1;
+        this.count = (int) chronoUnit.between(from, to) + 1;
     }
 
     public LocalDate getFrom() {
@@ -59,11 +58,19 @@ public class MonthsDTO {
         this.tasks = tasks;
     }
 
-    public List<StatsDTO> getStats() {
-        return stats;
+    public ChronoUnit getChronoUnit() {
+        return chronoUnit;
     }
 
-    public void setStats(List<StatsDTO> stats) {
-        this.stats = stats;
+    public void setChronoUnit(ChronoUnit chronoUnit) {
+        this.chronoUnit = chronoUnit;
+    }
+
+    public SummaryDTO getSummary() {
+        return summary;
+    }
+
+    public void setSummary(SummaryDTO summary) {
+        this.summary = summary;
     }
 }

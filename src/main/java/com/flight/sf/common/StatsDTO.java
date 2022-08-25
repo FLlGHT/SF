@@ -2,6 +2,10 @@ package com.flight.sf.common;
 
 import com.flight.sf.utilities.DateUtils;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
+
 /**
  * @author FLIGHT
  * @creationDate 16.08.2022
@@ -9,45 +13,37 @@ import com.flight.sf.utilities.DateUtils;
 public class StatsDTO extends ProductivityDTO {
 
     private long taskMillis;
-    private long totalMillis;
-    private String productiveTime;
-    private String totalTime;
-    private String percentage;
 
+    private long totalMillis;
 
     public StatsDTO() {
 
     }
 
-    public StatsDTO(long productiveTime, long totalTime, double percentage) {
-        this.productiveTime = DateUtils.millisToDate(productiveTime);
-        this.totalTime = DateUtils.millisToDate(totalTime);
-        this.percentage = String.format("%,.2f", percentage * 100);
+    public StatsDTO(LocalDate from, LocalDate to) {
+        this.totalMillis = ChronoUnit.MILLIS.between(from.atStartOfDay(), to.atTime(LocalTime.MAX));
+    }
+
+    public StatsDTO(long taskMillis, long totalMillis) {
+        this.taskMillis = taskMillis;
+        this.totalMillis = totalMillis;
     }
 
 
     public String getProductiveTime() {
-        return productiveTime;
-    }
-
-    public void setProductiveTime(String productiveTime) {
-        this.productiveTime = productiveTime;
+        return DateUtils.millisToDate(taskMillis);
     }
 
     public String getTotalTime() {
-        return totalTime;
+        return DateUtils.millisToDate(getTotalMillis());
     }
 
-    public void setTotalTime(String totalTime) {
-        this.totalTime = totalTime;
+    public long getTotalMillis() {
+        return totalMillis;
     }
 
     public String getPercentage() {
-        return percentage;
-    }
-
-    public void setPercentage(String percentage) {
-        this.percentage = percentage;
+        return String.format("%,.2f", (getTaskMillis() / (getTotalMillis() * 0.66)) * 100);
     }
 
     public long getTaskMillis() {
@@ -60,13 +56,5 @@ public class StatsDTO extends ProductivityDTO {
 
     public void addTaskMillis(long taskMillis) {
         setTaskMillis(this.taskMillis + taskMillis);
-    }
-
-    public long getTotalMillis() {
-        return totalMillis;
-    }
-
-    public void setTotalMillis(long totalMillis) {
-        this.totalMillis = totalMillis;
     }
 }

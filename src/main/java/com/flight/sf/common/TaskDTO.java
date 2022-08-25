@@ -18,12 +18,14 @@ public class TaskDTO extends ProductivityDTO {
     private Map<Integer, Long> millisByPeriod;
     private int categoryCount;
 
+    private ChronoUnit chronoUnit;
+
     public TaskDTO() {
         initPeriodMap();
     }
 
-    public TaskDTO(Event event, LocalDate from, LocalDate to) {
-        this.categoryCount = (int) ChronoUnit.MONTHS.between(from, to) + 1;
+    public TaskDTO(Event event, ChronoUnit chronoUnit, LocalDate from, LocalDate to) {
+        this.categoryCount = (int) chronoUnit.between(from, to) + 1;
 
         this.millisByPeriod = new LinkedHashMap<>();
         for (int i = from.getMonthValue(); i <= to.getMonthValue(); ++i) {
@@ -66,8 +68,10 @@ public class TaskDTO extends ProductivityDTO {
         this.taskMillis = taskMillis;
     }
 
-    public void addTaskMillis(long millis) {
-        setTaskMillis(this.taskMillis + millis);
+    public void addTaskMillis(int periodNumber, long eventDuration) {
+        setTaskMillis(this.taskMillis + eventDuration);
+
+        millisByPeriod.put(periodNumber, millisByPeriod.get(periodNumber) + eventDuration);
     }
 
     public Map<Integer, Long> getMillisByPeriod() {
@@ -84,5 +88,21 @@ public class TaskDTO extends ProductivityDTO {
 
     public void setCategory(String category) {
         this.category = category;
+    }
+
+    public int getCategoryCount() {
+        return categoryCount;
+    }
+
+    public void setCategoryCount(int categoryCount) {
+        this.categoryCount = categoryCount;
+    }
+
+    public ChronoUnit getChronoUnit() {
+        return chronoUnit;
+    }
+
+    public void setChronoUnit(ChronoUnit chronoUnit) {
+        this.chronoUnit = chronoUnit;
     }
 }

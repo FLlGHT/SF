@@ -73,4 +73,5 @@ public class PeriodDTO {
     public void setSummary(SummaryDTO summary) {
         this.summary = summary;
     }
+
 }

@@ -1,26 +1,28 @@
 package com.flight.sf.common;
 
+import java.time.Month;
 import java.util.List;
+import java.util.Map;
 
 public class SummaryDTO {
-    private final List<StatsDTO> periodStats;
+    private final Map<String, StatsDTO> periodStats;
     private final StatsDTO totalStats;
 
-    public SummaryDTO(List<StatsDTO> periodStats) {
+    public SummaryDTO(Map<String, StatsDTO> periodStats) {
         this.periodStats = periodStats;
         this.totalStats = createTotalStats();
     }
 
     private StatsDTO createTotalStats() {
         long taskTime = 0, totalTime = 0;
-        for (StatsDTO periodStat : periodStats) {
+        for (StatsDTO periodStat : periodStats.values()) {
             taskTime += periodStat.getTaskMillis();
             totalTime += periodStat.getTotalMillis();
         }
         return new StatsDTO(taskTime, totalTime);
     }
 
-    public List<StatsDTO> getPeriodStats() {
+    public Map<String, StatsDTO> getPeriodStats() {
         return periodStats;
     }
 

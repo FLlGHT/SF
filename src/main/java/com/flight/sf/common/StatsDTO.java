@@ -21,7 +21,7 @@ public class StatsDTO extends ProductivityDTO {
     }
 
     public StatsDTO(LocalDate from, LocalDate to) {
-        this.totalMillis = ChronoUnit.MILLIS.between(from.atStartOfDay(), to.atTime(LocalTime.MAX));
+        this.totalMillis = ChronoUnit.MILLIS.between(from.atStartOfDay(), to.plusDays(1).atStartOfDay());
     }
 
     public StatsDTO(long taskMillis, long totalMillis) {

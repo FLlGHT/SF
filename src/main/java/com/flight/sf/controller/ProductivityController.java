@@ -24,6 +24,15 @@ public class ProductivityController {
     @Autowired
     private ProductivityService productivityService;
 
+    @GetMapping("/day")
+    public String productivityByDay(Model model,
+                                    @RequestParam(value = "from", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate from,
+                                    @RequestParam(value = "to", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate to)
+    throws IOException {
+
+        return "day";
+    }
+
     @GetMapping("/week")
     public String productivityByWeek(Model model,
                                      @RequestParam(value = "from", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate from,

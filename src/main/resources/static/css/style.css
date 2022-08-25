@@ -144,6 +144,6 @@ body {
     border-bottom-color: #fff;
 }
 
-tr {
-    height: 5px;
+main > .container {
+    padding: 60px 15px 0;
 }

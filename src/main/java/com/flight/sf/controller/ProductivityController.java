@@ -1,7 +1,6 @@
 package com.flight.sf.controller;
 
 import com.flight.sf.common.PeriodDTO;
-import com.flight.sf.service.CalendarService;
 import com.flight.sf.service.ProductivityService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -13,13 +12,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.io.IOException;
 import java.time.LocalDate;
+import java.time.temporal.WeekFields;
+import java.util.Locale;
 
 @Controller
 @RequestMapping("/productivity")
 public class ProductivityController {
-
-    @Autowired
-    private CalendarService calendarService;
 
     @Autowired
     private ProductivityService productivityService;
@@ -39,9 +37,15 @@ public class ProductivityController {
                                      @RequestParam(value = "to", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate to)
             throws IOException {
 
-//        productivityService.getWeeklyProductivity(model, from, to);
+        WeekFields weekFields = WeekFields.of(Locale.getDefault());
 
-        model.addAttribute("weeks", new PeriodDTO());
+        if (from == null)
+            from = LocalDate.now().minusWeeks(4).with(weekFields.dayOfWeek(), 1);
+        if (to == null)
+            to = LocalDate.now();
+
+        PeriodDTO weeks = productivityService.getWeeklyProductivity(from, to);
+        model.addAttribute("weeks", weeks);
         return "week";
     }
 

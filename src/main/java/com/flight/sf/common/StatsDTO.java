@@ -3,14 +3,13 @@ package com.flight.sf.common;
 import com.flight.sf.utilities.DateUtils;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 
 /**
  * @author FLIGHT
  * @creationDate 16.08.2022
  */
-public class StatsDTO extends ProductivityDTO {
+public class StatsDTO {
 
     private long taskMillis;
 

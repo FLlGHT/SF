@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class TaskDTO extends ProductivityDTO {
+public class TaskDTO  {
 
     private String name;
     private String category;
@@ -21,24 +21,33 @@ public class TaskDTO extends ProductivityDTO {
     private ChronoUnit chronoUnit;
 
     public TaskDTO() {
-        initPeriodMap();
+
     }
 
     public TaskDTO(Event event, ChronoUnit chronoUnit, LocalDate from, LocalDate to) {
         this.categoryCount = (int) chronoUnit.between(from, to) + 1;
 
-        this.millisByPeriod = new LinkedHashMap<>();
-        for (int i = from.getMonthValue(); i <= to.getMonthValue(); ++i) {
-            millisByPeriod.put(i, 0L);
-        }
+        if (chronoUnit.equals(ChronoUnit.MONTHS))
+            initMonthsPeriodMap(from, to);
+        else if (chronoUnit.equals(ChronoUnit.WEEKS))
+            initWeeksPeriodMap(from, to);
 
         this.name = event.getSummary();
         this.category = CategoryColor.getCategoryNameById(event.getColorId());
     }
 
-    private void initPeriodMap() {
+    private void initMonthsPeriodMap(LocalDate from, LocalDate to) {
         this.millisByPeriod = new LinkedHashMap<>();
-        initMap(millisByPeriod);
+        for (int monthValue = from.getMonthValue(); monthValue <= to.getMonthValue(); ++monthValue) {
+            millisByPeriod.put(monthValue, 0L);
+        }
+    }
+
+    public void initWeeksPeriodMap(LocalDate from, LocalDate to) {
+        this.millisByPeriod = new LinkedHashMap<>();
+        for (int week = DateUtils.weekNumber(from); week <= DateUtils.weekNumber(to); ++week) {
+            millisByPeriod.put(week, 0L);
+        }
     }
 
     public String getName() {

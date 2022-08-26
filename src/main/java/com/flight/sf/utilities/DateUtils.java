@@ -26,11 +26,23 @@ public class DateUtils {
         return String.format(stringInterval, hours, minutes);
     }
 
-    public static int weekNumber(long millis) {
+    public static int weekOfMonthNumber(long millis) {
         Instant instant = Instant.ofEpochMilli(millis);
         LocalDate localDate = LocalDate.ofInstant(instant, ZoneId.systemDefault());
 
         return localDate.get(WeekFields.of(Locale.getDefault()).weekOfMonth());
+    }
+
+    public static int weekNumber(long millis) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(millis);
+
+        return calendar.get(Calendar.WEEK_OF_YEAR);
+    }
+
+    public static int weekNumber(LocalDate date) {
+        WeekFields weekFields = WeekFields.of(Locale.getDefault());
+        return date.get(weekFields.weekOfYear());
     }
 
     public static int monthNumber(long millis) {

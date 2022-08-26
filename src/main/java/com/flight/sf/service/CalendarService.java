@@ -81,7 +81,7 @@ public class CalendarService {
         Calendar service = getService();
 
         DateTime dateFrom = new DateTime(Date.from(from.atStartOfDay(ZoneId.systemDefault()).toInstant()));
-        DateTime dateTo = new DateTime(Date.from(to.atStartOfDay(ZoneId.systemDefault()).toInstant()));
+        DateTime dateTo = new DateTime(Date.from(to.plusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant()));
 
         return service.events().list("primary")
                 .setTimeMin(dateFrom)
@@ -90,9 +90,5 @@ public class CalendarService {
                 .setSingleEvents(true)
                 .execute()
                 .getItems();
-    }
-
-    private long eventDuration(Event event) {
-        return event.getEnd().getDateTime().getValue() - event.getStart().getDateTime().getValue();
     }
 }

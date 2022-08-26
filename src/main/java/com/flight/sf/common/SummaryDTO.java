@@ -1,7 +1,5 @@
 package com.flight.sf.common;
 
-import java.time.Month;
-import java.util.List;
 import java.util.Map;
 
 public class SummaryDTO {

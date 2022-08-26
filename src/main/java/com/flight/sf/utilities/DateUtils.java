@@ -4,6 +4,7 @@ import java.sql.Date;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.WeekFields;
 import java.util.Calendar;
 import java.util.Locale;
@@ -33,11 +34,27 @@ public class DateUtils {
         return localDate.get(WeekFields.of(Locale.getDefault()).weekOfMonth());
     }
 
+    public static int dayNumber(long millis) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(millis);
+
+        return calendar.get(Calendar.DAY_OF_YEAR);
+    }
+
+    public static String dateByDayOfYear(int day) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM");
+        return LocalDate.now().withDayOfYear(day).format(formatter);
+    }
+
     public static int weekNumber(long millis) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(millis);
 
         return calendar.get(Calendar.WEEK_OF_YEAR);
+    }
+
+    public static int dayNumber(LocalDate date) {
+        return date.getDayOfYear();
     }
 
     public static int weekNumber(LocalDate date) {

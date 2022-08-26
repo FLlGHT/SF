@@ -26,6 +26,27 @@ public class ProductivityService {
     @Autowired
     private CalendarService calendarService;
 
+    public PeriodDTO getDailyProductivity(LocalDate from, LocalDate to) throws IOException {
+        List<Event> events = calendarService.getEvents(from, to);
+        PeriodDTO periodDTO = new PeriodDTO(ChronoUnit.DAYS, from, to);
+        Map<String, TaskDTO> tasks = new HashMap<>();
+        Map<Integer, StatsDTO> stats = new HashMap<>();
+
+        for (Event event : events) {
+            long eventDuration = eventDuration(event);
+            int dayNumber = DateUtils.dayNumber(event.getEnd().getDateTime().getValue());
+
+            tasks.computeIfAbsent(event.getSummary().toLowerCase(), createTaskDTO(event, ChronoUnit.DAYS, from, to))
+                    .addTaskMillis(dayNumber, eventDuration);
+            stats.computeIfAbsent(dayNumber,  createDayStatsDTO(from, to, dayNumber))
+                    .addTaskMillis(eventDuration);
+        }
+
+        periodDTO.setTasks(createTasks(tasks));
+        periodDTO.setSummary(createDaySummary(stats, from, to));
+
+        return periodDTO;
+    }
     public PeriodDTO getWeeklyProductivity(LocalDate from, LocalDate to) throws IOException {
         List<Event> events = calendarService.getEvents(from, to);
         PeriodDTO periodDTO = new PeriodDTO(ChronoUnit.WEEKS, from, to);
@@ -77,6 +98,23 @@ public class ProductivityService {
                     .collect(Collectors.toList());
     }
 
+    private SummaryDTO createDaySummary(Map<Integer, StatsDTO> stats, LocalDate from, LocalDate to) {
+        if (stats.size() < ChronoUnit.DAYS.between(from, to) + 1) {
+            for (int dayNumber = DateUtils.dayNumber(from); dayNumber <= DateUtils.dayNumber(to); ++dayNumber) {
+                stats.computeIfAbsent(dayNumber, createDayStatsDTO(from, to, dayNumber));
+            }
+        }
+
+        Function<Map.Entry<Integer, StatsDTO>, String> keyMapper = entry -> DateUtils.dateByDayOfYear(entry.getKey());
+
+        return new SummaryDTO(stats.entrySet().stream()
+                                   .sorted(
+                                           Comparator.comparingInt(Map.Entry::getKey))
+                                   .collect(Collectors.toMap(
+                                           keyMapper, Map.Entry::getValue, (key, value) -> key, LinkedHashMap::new
+                                   )));
+    }
+
     private SummaryDTO createWeekSummary(Map<Integer, StatsDTO> stats, LocalDate from, LocalDate to) {
         if (stats.size() < ChronoUnit.WEEKS.between(from, to) + 1) {
             for (int weekNumber = DateUtils.weekNumber(from); weekNumber <= DateUtils.weekNumber(to); ++weekNumber) {
@@ -122,6 +160,12 @@ public class ProductivityService {
 
     private Function<String, TaskDTO> createTaskDTO(Event event, ChronoUnit chronoUnit, LocalDate from, LocalDate to) {
         return parameter -> new TaskDTO(event, chronoUnit, from, to);
+    }
+
+    private Function<Integer, StatsDTO> createDayStatsDTO(LocalDate from, LocalDate to, int dayNumber) {
+        LocalDate date = LocalDate.ofYearDay(from.getYear(), dayNumber);
+
+        return parameter -> new StatsDTO(date, date);
     }
 
     private Function<Integer, StatsDTO> createWeekStatsDTO(LocalDate from, LocalDate to, int weekNumber) {

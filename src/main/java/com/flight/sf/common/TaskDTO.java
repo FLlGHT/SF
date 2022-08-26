@@ -31,15 +31,18 @@ public class TaskDTO  {
             initMonthsPeriodMap(from, to);
         else if (chronoUnit.equals(ChronoUnit.WEEKS))
             initWeeksPeriodMap(from, to);
+        else if (chronoUnit.equals(ChronoUnit.DAYS))
+            initDaysPeriodMap(from, to);
+
 
         this.name = event.getSummary();
         this.category = CategoryColor.getCategoryNameById(event.getColorId());
     }
 
-    private void initMonthsPeriodMap(LocalDate from, LocalDate to) {
+    public void initDaysPeriodMap(LocalDate from, LocalDate to) {
         this.millisByPeriod = new LinkedHashMap<>();
-        for (int monthValue = from.getMonthValue(); monthValue <= to.getMonthValue(); ++monthValue) {
-            millisByPeriod.put(monthValue, 0L);
+        for (int day = DateUtils.dayNumber(from); day <= DateUtils.dayNumber(to); ++day) {
+            millisByPeriod.put(day, 0L);
         }
     }
 
@@ -47,6 +50,13 @@ public class TaskDTO  {
         this.millisByPeriod = new LinkedHashMap<>();
         for (int week = DateUtils.weekNumber(from); week <= DateUtils.weekNumber(to); ++week) {
             millisByPeriod.put(week, 0L);
+        }
+    }
+
+    private void initMonthsPeriodMap(LocalDate from, LocalDate to) {
+        this.millisByPeriod = new LinkedHashMap<>();
+        for (int monthValue = from.getMonthValue(); monthValue <= to.getMonthValue(); ++monthValue) {
+            millisByPeriod.put(monthValue, 0L);
         }
     }
 

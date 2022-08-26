@@ -28,6 +28,13 @@ public class ProductivityController {
                                     @RequestParam(value = "to", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate to)
     throws IOException {
 
+        if (from == null)
+            from = LocalDate.now().minusDays(4);
+        if (to == null)
+            to = LocalDate.now();
+
+        PeriodDTO days = productivityService.getDailyProductivity(from, to);
+        model.addAttribute("days", days);
         return "day";
     }
 

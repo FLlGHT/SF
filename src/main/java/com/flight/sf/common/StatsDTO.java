@@ -3,6 +3,7 @@ package com.flight.sf.common;
 import com.flight.sf.utilities.DateUtils;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 
 /**
@@ -20,7 +21,9 @@ public class StatsDTO {
     }
 
     public StatsDTO(LocalDate from, LocalDate to) {
-        this.totalMillis = ChronoUnit.MILLIS.between(from.atStartOfDay(), to.plusDays(1).atStartOfDay());
+        LocalDateTime beginDate = from.atStartOfDay();
+        LocalDateTime endDate = to.plusDays(1).atStartOfDay();
+        this.totalMillis = ChronoUnit.MILLIS.between(beginDate, endDate.isBefore(LocalDateTime.now()) ? endDate : LocalDateTime.now());
     }
 
     public StatsDTO(long taskMillis, long totalMillis) {
